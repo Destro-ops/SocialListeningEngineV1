@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PensionBox Intel</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --glass: rgba(255,255,255,0.05);
+    --glass-border: rgba(255,255,255,0.10);
+    --glass-hover: rgba(255,255,255,0.08);
+    --accent: #6366f1;
+    --accent-glow: rgba(99,102,241,0.3);
+    --red: #f87171;
+    --amber: #fb923c;
+    --green: #34d399;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --yellow: #fbbf24;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --text-muted: #475569;
+    --border: rgba(255,255,255,0.08);
+    --bg: #060811;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background orbs */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -20%;
+    left: -10%;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -20%;
+    right: -10%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(167,139,250,0.08) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Layout */
+  .layout { display: flex; min-height: 100vh; position: relative; z-index: 1; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 260px;
+    flex-shrink: 0;
+    background: rgba(6,8,17,0.8);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border);
+    display: flex;
+    flex-direction: column;
+    padding: 2rem 1.5rem;
+    position: fixed;
+    top: 0; left: 0; bottom: 0;
+    z-index: 100;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2.5rem;
+  }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+  }
+  .logo-text {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: 0.05em;
+  }
+  .logo-sub {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.08em;
+    margin-top: 1px;
+  }
+
+  .nav-section {
+    font-size: 0.62rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0.65rem 0.85rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+    text-decoration: none;
+  }
+  .nav-item:hover {
+    background: var(--glass);
+    color: var(--text-primary);
+    border-color: var(--glass-border);
+  }
+  .nav-item.active {
+    background: rgba(99,102,241,0.12);
+    color: #818cf8;
+    border-color: rgba(99,102,241,0.25);
+  }
+  .nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+  .nav-badge {
+    margin-left: auto;
+    background: rgba(248,113,113,0.15);
+    color: var(--red);
+    font-size: 0.6rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid rgba(248,113,113,0.2);
+  }
+
+  .sidebar-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 1.2rem 0;
+  }
+
+  .run-btn {
+    width: 100%;
+    padding: 0.75rem;
+    background: linear-gradient(135deg, var(--accent), #8b5cf6);
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.02em;
+    position: relative;
+    overflow: hidden;
+    margin-top: auto;
+  }
+  .run-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.4s;
+  }
+  .run-btn:hover::before { left: 100%; }
+  .run-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(99,102,241,0.4); }
+  .run-btn:active { transform: translateY(0); }
+
+  .last-run {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    text-align: center;
+    margin-top: 0.75rem;
+  }
+
+  /* Main */
+  .main {
+    margin-left: 260px;
+    flex: 1;
+    padding: 2rem 2.5rem;
+    max-width: calc(100vw - 260px);
+  }
+
+  /* Topbar */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .page-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+  }
+  .page-sub {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 3px;
+  }
+  .engine-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .engine-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Stats row */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  .stat-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 1.2rem 1.4rem;
+    backdrop-filter: blur(10px);
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: rgba(255,255,255,0.15); }
+  .stat-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 8px;
+  }
+  .stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+  .stat-value.red { color: var(--red); }
+  .stat-value.amber { color: var(--amber); }
+  .stat-value.purple { color: var(--purple); }
+
+  /* Tabs */
+  .tabs-row {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    padding: 4px;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    padding: 6px 14px;
+    border-radius: 7px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: none;
+    background: none;
+    transition: all 0.15s;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+  }
+  .tab-btn:hover { color: var(--text-primary); background: var(--glass-hover); }
+  .tab-btn.active {
+    background: rgba(99,102,241,0.2);
+    color: #a5b4fc;
+    border: 1px solid rgba(99,102,241,0.3);
+  }
+
+  /* Feed */
+  .feed { display: flex; flex-direction: column; gap: 0; }
+
+  .bulletin {
+    padding: 1.4rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: all 0.15s;
+  }
+  .bulletin:last-child { border-bottom: none; }
+  .bulletin:hover { padding-left: 6px; }
+
+  .bulletin-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+
+  .imp-indicator {
+    width: 3px;
+    align-self: stretch;
+    border-radius: 2px;
+    flex-shrink: 0;
+    min-height: 16px;
+    margin-top: 2px;
+  }
+  .imp-indicator.high { background: var(--red); }
+  .imp-indicator.medium { background: var(--amber); }
+  .imp-indicator.low { background: var(--text-muted); }
+
+  .bulletin-title {
+    font-size: 0.92rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1.45;
+    flex: 1;
+  }
+  .bulletin-title a {
+    color: inherit;
+    text-decoration: none;
+    transition: color 0.15s;
+  }
+  .bulletin-title a:hover { color: #a5b4fc; }
+
+  .bulletin-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 0.6rem;
+    padding-left: 15px;
+  }
+  .meta-sep { color: var(--border); }
+
+  .signal-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .pill-product_launch     { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+  .pill-partnership        { background: rgba(96,165,250,0.1); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+  .pill-hiring_signal      { background: rgba(251,146,60,0.1); color: var(--amber); border: 1px solid rgba(251,146,60,0.2); }
+  .pill-pricing_change     { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .pill-regulatory_response{ background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+  .pill-marketing_push     { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+  .pill-market_news        { background: rgba(148,163,184,0.08); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.15); }
+
+  .bulletin-summary {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+    margin-bottom: 0.6rem;
+    padding-left: 15px;
+  }
+
+  .bulletin-implication {
+    padding: 0.7rem 1rem;
+    margin-left: 15px;
+    background: rgba(99,102,241,0.05);
+    border: 1px solid rgba(99,102,241,0.1);
+    border-radius: 8px;
+    border-left: 2px solid rgba(99,102,241,0.4);
+  }
+  .imp-label {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: rgba(99,102,241,0.7);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 3px;
+  }
+  .imp-text {
+    font-size: 0.82rem;
+    color: #a5b4fc;
+    line-height: 1.6;
+  }
+
+  /* Empty state */
+  .empty {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 2rem; margin-bottom: 1rem; opacity: 0.3; }
+  .empty-text { font-size: 0.8rem; letter-spacing: 0.05em; text-transform: uppercase; font-family: 'JetBrains Mono', monospace; }
+
+  /* Page sections */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* Previous runs */
+  .runs-list { display: flex; flex-direction: column; gap: 1rem; }
+  .run-card {
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 12px;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+  .run-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.4rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px solid transparent;
+  }
+  .run-card-header:hover { background: var(--glass-hover); }
+  .run-card-header.open { border-bottom-color: var(--border); }
+  .run-timestamp {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .run-meta-pills { display: flex; gap: 8px; align-items: center; }
+  .run-pill {
+    font-size: 0.65rem;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+  }
+  .run-pill.total { background: var(--glass); color: var(--text-secondary); border: 1px solid var(--border); }
+  .run-pill.high-p { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .run-chevron { color: var(--text-muted); font-size: 12px; transition: transform 0.2s; }
+  .run-chevron.open { transform: rotate(180deg); }
+  .run-card-body { display: none; padding: 0 1.4rem 1rem; }
+  .run-card-body.open { display: block; }
+
+  /* Social media page */
+  .coming-soon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    text-align: center;
+    gap: 1rem;
+  }
+  .coming-badge {
+    padding: 6px 16px;
+    background: rgba(251,191,36,0.1);
+    border: 1px solid rgba(251,191,36,0.2);
+    border-radius: 20px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--yellow);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .coming-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+  }
+  .coming-sub {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    max-width: 400px;
+    line-height: 1.6;
+  }
+  .coming-sources {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 0.5rem;
+  }
+  .coming-source {
+    padding: 6px 14px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 8px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    display: none;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.2);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 6px;
+  }
+  .run-btn.loading .spinner { display: inline-block; }
+  .run-btn.loading .btn-text { opacity: 0.7; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Filter chips */
+  .filter-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .filter-chip {
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: none;
+    font-family: 'Inter', sans-serif;
+    transition: all 0.15s;
+  }
+  .filter-chip:hover { border-color: rgba(255,255,255,0.2); color: var(--text-primary); }
+  .filter-chip.active { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.3); color: #a5b4fc; }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo">
+      <div class="logo-icon">📡</div>
+      <div>
+        <div class="logo-text">PensionBox</div>
+        <div class="logo-sub">INTEL PLATFORM</div>
+      </div>
+    </div>
+
+    <div class="nav-section">Intelligence</div>
+    <a class="nav-item active" onclick="showPage('live')" href="#">
+      <span class="nav-icon">⚡</span> Live Feed
+      <span class="nav-badge" id="live-badge">0</span>
+    </a>
+    <a class="nav-item" onclick="showPage('history')" href="#">
+      <span class="nav-icon">🕐</span> Previous Results
+    </a>
+
+    <div class="nav-item" onclick="showPage('regulatory', this)">
+  <span class="nav-icon">📋</span> Regulatory
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="nav-section">Community</div>
+    <a class="nav-item" onclick="showPage('social')" href="#">
+      <span class="nav-icon">🌐</span> Social Listening
+      <span style="margin-left:auto;font-size:0.6rem;color:var(--yellow);font-family:'JetBrains Mono',monospace;">SOON</span>
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <button class="run-btn" onclick="runPipeline()">
+      <span class="spinner" id="spinner"></span>
+      <span class="btn-text" id="btn-text">⚡ Run Intelligence Feed</span>
+    </button>
+    <div class="last-run" id="last-run-label">Never run</div>
+  </aside>
+
+  <!-- Main -->
+  <main class="main">
+
+    <!-- LIVE FEED PAGE -->
+    <div class="page active" id="page-live">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Intelligence Feed</div>
+          <div class="page-sub">Competitor monitoring · PensionBox.in</div>
+        </div>
+        <div class="engine-badge">
+          <span class="engine-dot"></span>
+          SOCIAL LISTENING ENGINE
+        </div>
+      </div>
+
+      
+
+      <div class="tabs-row" id="signal-tabs">
+        <button class="tab-btn active" onclick="filterTab('all', this)">All</button>
+        <button class="tab-btn" onclick="filterTab('high', this)">🔴 High Priority</button>
+        <button class="tab-btn" onclick="filterTab('product_launch', this)">Product Launch</button>
+        <button class="tab-btn" onclick="filterTab('partnership', this)">Partnership</button>
+        <button class="tab-btn" onclick="filterTab('hiring_signal', this)">Hiring</button>
+        <button class="tab-btn" onclick="filterTab('pricing_change', this)">Pricing</button>
+        <button class="tab-btn" onclick="filterTab('regulatory_response', this)">Regulatory</button>
+        <button class="tab-btn" onclick="filterTab('marketing_push', this)">Marketing</button>
+        <button class="tab-btn" onclick="filterTab('market_news', this)">Market News</button>
+      </div>
+
+      <div id="live-feed">
+        <div class="empty">
+          <div class="empty-icon">📡</div>
+          <div class="empty-text">No feed data · Hit run to start</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREVIOUS RESULTS PAGE -->
+    <div class="page" id="page-history">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Previous Results</div>
+          <div class="page-sub">Last 5 runs · PensionBox.in</div>
+        </div>
+      </div>
+      <div id="history-list">
+        <div class="empty">
+          <div class="empty-icon">🕐</div>
+          <div class="empty-text">No previous runs yet</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="page" id="page-regulatory">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Regulatory Monitor</div>
+      <div class="page-sub">PFRDA press releases · NPS regulation · PensionBox implications</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="engine-badge"><span class="engine-dot"></span>PFRDA WATCH</div>
+      <button class="run-btn" id="reg-run-btn" onclick="runRegulatory()" style="width:auto;padding:0.5rem 1.2rem;margin-top:0;font-size:0.78rem;">
+        <span class="spinner" id="reg-spinner"></span>
+        <span id="reg-btn-text">⚡ Fetch Releases</span>
+      </button>
+    </div>
+  </div>
+  <div class="filter-row" id="reg-filter-row">
+    <button class="filter-chip active" onclick="setRegulatoryFilter('all', this)">All Time</button>
+    <button class="filter-chip" onclick="setRegulatoryFilter('week', this)">Last Week</button>
+    <button class="filter-chip" onclick="setRegulatoryFilter('month', this)">Last Month</button>
+  </div>
+  <div id="regulatory-feed">
+    <div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No releases fetched · Hit fetch to start</div></div>
+  </div>
+</div>
+
+    <!-- SOCIAL MEDIA PAGE -->
+    <div class="page" id="page-social">
+      <div class="topbar">
+        <div>
+          <div class="page-title">Social Listening</div>
+          <div class="page-sub">Community intelligence · Reddit · Quora · Twitter</div>
+        </div>
+      </div>
+      <div class="coming-soon">
+        <div class="coming-badge">Coming Soon</div>
+        <div class="coming-title">Community Intelligence</div>
+        <div class="coming-sub">Monitor conversations about NPS, EPF, and employee benefits across social platforms in real time.</div>
+        <div class="coming-sources">
+          <span class="coming-source">Reddit API</span>
+          <span class="coming-source">Quora via Tavily</span>
+          <span class="coming-source">Twitter via Tavily</span>
+          <span class="coming-source">r/IndiaInvestments</span>
+          <span class="coming-source">r/personalfinanceindia</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  let allSignals = [];
+  let runs = JSON.parse(localStorage.getItem('pb_runs') || '[]');
+  let currentTab = 'all';
+
+  function showPage(name) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('page-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+    if (name === 'history') renderHistory();
+  }
+
+  function filterTab(type, btn) {
+    currentTab = type;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderFeed(allSignals);
+  }
+
+  function getFiltered(signals) {
+    if (currentTab === 'all') return signals;
+    if (currentTab === 'high') return signals.filter(s => s.importance === 'high');
+    return signals.filter(s => s.signal_type === currentTab);
+  }
+
+  function pillClass(type) {
+    const map = {
+      product_launch: 'pill-product_launch',
+      partnership: 'pill-partnership',
+      hiring_signal: 'pill-hiring_signal',
+      pricing_change: 'pill-pricing_change',
+      regulatory_response: 'pill-regulatory_response',
+      marketing_push: 'pill-marketing_push',
+      market_news: 'pill-market_news',
+    };
+    return map[type] || 'pill-market_news';
+  }
+
+  function pillLabel(type) {
+    return (type || 'market news').replace(/_/g, ' ').toUpperCase();
+  }
+
+  function bulletinHTML(signal) {
+    const imp = signal.importance || 'low';
+    const type = signal.signal_type || 'market_news';
+    const pub = (signal.published_date ||signal.published_at || '').slice(0,10);
+    const summary = (signal.summary || '').slice(0, 200) + ((signal.summary || '').length > 200 ? '...' : '');
+    return `
+    <div class="bulletin">
+      <div class="bulletin-header">
+        <div class="imp-indicator ${imp}"></div>
+        <div class="bulletin-title"><a href="${signal.url || '#'}" target="_blank">${signal.title || 'Untitled'}</a></div>
+      </div>
+      <div class="bulletin-meta">
+        <span>${signal.competitor || ''}</span>
+        <span class="meta-sep">·</span>
+        <span>${pub}</span>
+        <span class="meta-sep">·</span>
+        <span class="signal-pill ${pillClass(type)}">${pillLabel(type)}</span>
+      </div>
+      <div class="bulletin-summary">${summary}</div>
+      ${signal.implication ? `
+      <div class="bulletin-implication">
+        <div class="imp-label">Implication for PensionBox</div>
+        <div class="imp-text">${signal.implication}</div>
+      </div>` : ''}
+    </div>`;
+  }
+
+  function renderFeed(signals) {
+    const feed = document.getElementById('live-feed');
+    const filtered = getFiltered(signals);
+    if (!filtered.length) {
+      feed.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No signals in this category</div></div>`;
+      return;
+    }
+    feed.innerHTML = `<div class="feed">${filtered.map(bulletinHTML).join('')}</div>`;
+  }
+
+  
+
+  function renderHistory() {
+    const list = document.getElementById('history-list');
+    if (!runs.length) {
+      list.innerHTML = `<div class="empty"><div class="empty-icon">🕐</div><div class="empty-text">No previous runs yet</div></div>`;
+      return;
+    }
+    list.innerHTML = `<div class="runs-list">${runs.map((run, i) => `
+      <div class="run-card">
+        <div class="run-card-header" onclick="toggleRun(${i}, this)">
+          <div class="run-timestamp">🕐 ${run.timestamp}</div>
+          <div class="run-meta-pills">
+            <span class="run-pill total">${run.signals.length} signals</span>
+            <span class="run-pill high-p">${run.signals.filter(s=>s.importance==='high').length} high</span>
+            <span class="run-chevron" id="chev-${i}">▼</span>
+          </div>
+        </div>
+        <div class="run-card-body" id="run-body-${i}">
+          <div style="margin-top:1rem;">
+            <div class="tabs-row">
+              <button class="tab-btn active" onclick="filterRunTab('all', this, ${i})">All</button>
+              <button class="tab-btn" onclick="filterRunTab('high', this, ${i})">🔴 High</button>
+              <button class="tab-btn" onclick="filterRunTab('product_launch', this, ${i})">Product Launch</button>
+              <button class="tab-btn" onclick="filterRunTab('partnership', this, ${i})">Partnership</button>
+              <button class="tab-btn" onclick="filterRunTab('hiring_signal', this, ${i})">Hiring</button>
+              <button class="tab-btn" onclick="filterRunTab('regulatory_response', this, ${i})">Regulatory</button>
+              <button class="tab-btn" onclick="filterRunTab('marketing_push', this, ${i})">Marketing</button>
+              <button class="tab-btn" onclick="filterRunTab('market_news', this, ${i})">Market News</button>
+            </div>
+            <div id="run-feed-${i}" class="feed">
+              ${run.signals.map(bulletinHTML).join('')}
+            </div>
+          </div>
+        </div>
+      </div>`).join('')}</div>`;
+  }
+
+  function toggleRun(i, header) {
+    const body = document.getElementById(`run-body-${i}`);
+    const chev = document.getElementById(`chev-${i}`);
+    const isOpen = body.classList.contains('open');
+    body.classList.toggle('open', !isOpen);
+    header.classList.toggle('open', !isOpen);
+    chev.classList.toggle('open', !isOpen);
+  }
+
+  function filterRunTab(type, btn, runIdx) {
+    btn.closest('.tabs-row').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const run = runs[runIdx];
+    const feed = document.getElementById(`run-feed-${runIdx}`);
+    let filtered = run.signals;
+    if (type === 'high') filtered = run.signals.filter(s => s.importance === 'high');
+    else if (type !== 'all') filtered = run.signals.filter(s => s.signal_type === type);
+    feed.innerHTML = filtered.length
+      ? filtered.map(bulletinHTML).join('')
+      : `<div class="empty" style="padding:2rem 0"><div class="empty-text">No signals in this category</div></div>`;
+  }
+
+  async function runPipeline() {
+    const btn = document.querySelector('.run-btn');
+    const btnText = document.getElementById('btn-text');
+    btn.classList.add('loading');
+    btnText.textContent = 'Running agent...';
+
+    try {
+      const res = await fetch('/run', { method: 'POST' });
+      const data = await res.json();
+      const signals = data.signals || [];
+      const now = new Date();
+      const IST = new Date(now.getTime() + (5.5 * 60 * 60 * 1000));
+      const timestamp = IST.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'})
+        + ', ' + IST.toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit',hour12:false}) + ' IST';
+
+      allSignals = signals;
+     
+      renderFeed(signals);
+      document.getElementById('live-badge').textContent = signals.length;
+
+      runs.unshift({ timestamp, signals });
+      if (runs.length > 5) runs = runs.slice(0, 5);
+      localStorage.setItem('pb_runs', JSON.stringify(runs));
+
+      document.getElementById('last-run-label').textContent = timestamp;
+      btnText.textContent = `✓ ${signals.length} signals found`;
+      setTimeout(() => { btnText.textContent = '⚡ Run Intelligence Feed'; }, 3000);
+
+    } catch (err) {
+      btnText.textContent = '⚠ Error — check backend';
+      setTimeout(() => { btnText.textContent = '⚡ Run Intelligence Feed'; }, 3000);
+    }
+
+    btn.classList.remove('loading');
+  }
+
+  // Load previous runs from localStorage on start
+  window.onload = async () => {
+    // Try loading from backend first
+    try {
+      const res = await fetch('/signals');
+      const data = await res.json();
+      if (data.signals && data.signals.length) {
+        allSignals = data.signals;
+        renderFeed(allSignals);
+        document.getElementById('live-badge').textContent = allSignals.length;
+        if (data.last_run_at) {
+          document.getElementById('last-run-label').textContent = data.last_run_at;
+        }
+        return;
+      }
+    } catch(e) {}
+
+    // Fallback to localStorage
+    if (runs.length && runs[0].signals) {
+      allSignals = runs[0].signals;
+      renderFeed(allSignals);
+      document.getElementById('last-run-label').textContent = runs[0].timestamp;
+    }
+  };
+
+  let allRegulatorySignals = [];
+  let regulatoryFilter = 'all';
+
+  function regulatoryBulletinHTML(s) {
+    const imp = s.importance || 'low';
+    const summary = (s.summary || '').slice(0, 200) + ((s.summary || '').length > 200 ? '...' : '');
+    return `
+    <div class="bulletin">
+      <div class="bulletin-header">
+        <div class="imp-indicator ${imp}"></div>
+        <div class="bulletin-title"><a href="${s.url || '#'}" target="_blank" rel="noopener">${s.title || 'PFRDA Release'}</a></div>
+      </div>
+      <div class="bulletin-meta">
+        <span style="color:var(--purple);font-weight:600">PFRDA</span>
+        ${s.date ? `<span class="meta-sep">·</span><span>${s.date}</span>` : ''}
+        <span class="meta-sep">·</span>
+        <span class="signal-pill pill-regulatory_response">REGULATORY</span>
+      </div>
+      <div class="bulletin-summary">${summary}</div>
+      ${s.key_quote ? `
+      <div class="bulletin-summary" style="font-style:italic;color:var(--text-muted);border-left:2px solid var(--purple);padding-left:10px;margin-left:13px">"${s.key_quote}"</div>` : ''}
+      ${s.implication ? `
+      <div class="bulletin-implication">
+        <div class="imp-label">Implication for PensionBox</div>
+        <div class="imp-text">${s.implication}</div>
+      </div>` : ''}
+    </div>`;
+  }
+
+  function filterRegulatorySignals(signals, range) {
+    if (range === 'all') return signals;
+
+    const now = Date.now();
+    const cutoffMs = range === 'week' ? 7 * 24 * 60 * 60 * 1000
+                    : range === 'month' ? 30 * 24 * 60 * 60 * 1000
+                    : null;
+    if (!cutoffMs) return signals;
+
+    return signals.filter(s => {
+      const dateStr = s.date || '';
+      if (!dateStr) return false; // undated items only show under "All Time"
+      const dt = new Date(dateStr);
+      if (isNaN(dt.getTime())) return false;
+      return (now - dt.getTime()) <= cutoffMs;
+    });
+  }
+
+  function setRegulatoryFilter(range, btn) {
+    regulatoryFilter = range;
+    document.querySelectorAll('#reg-filter-row .filter-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderRegulatoryFeed(allRegulatorySignals);
+  }
+
+  function renderRegulatoryFeed(signals) {
+    allRegulatorySignals = signals;
+    const el = document.getElementById('regulatory-feed');
+    const filtered = filterRegulatorySignals(signals, regulatoryFilter);
+
+    if (!signals.length) {
+      el.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-text">No releases fetched · Hit fetch to start</div></div>`;
+      return;
+    }
+    if (!filtered.length) {
+      const label = regulatoryFilter === 'week' ? 'the last week' : regulatoryFilter === 'month' ? 'the last month' : 'this range';
+      el.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No releases dated within ${label}</div></div>`;
+      return;
+    }
+    el.innerHTML = `<div class="feed">${filtered.map(regulatoryBulletinHTML).join('')}</div>`;
+  }
+
+  function showToast(message, type) {
+    let toast = document.getElementById('pb-toast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'pb-toast';
+      toast.style.position = 'fixed';
+      toast.style.bottom = '24px';
+      toast.style.right = '24px';
+      toast.style.padding = '10px 18px';
+      toast.style.borderRadius = '8px';
+      toast.style.fontSize = '0.8rem';
+      toast.style.fontWeight = '600';
+      toast.style.fontFamily = "'Inter', sans-serif";
+      toast.style.zIndex = '1000';
+      toast.style.backdropFilter = 'blur(10px)';
+      toast.style.transition = 'opacity 0.2s, transform 0.2s';
+      document.body.appendChild(toast);
+    }
+    const isError = type === 'error';
+    toast.style.background = isError ? 'rgba(248,113,113,0.15)' : 'rgba(52,211,153,0.15)';
+    toast.style.border = `1px solid ${isError ? 'rgba(248,113,113,0.3)' : 'rgba(52,211,153,0.3)'}`;
+    toast.style.color = isError ? 'var(--red)' : 'var(--green)';
+    toast.textContent = message;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+    clearTimeout(toast._hideTimer);
+    toast._hideTimer = setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateY(8px)';
+    }, 3000);
+  }
+
+async function runRegulatory() {
+  const btn = document.getElementById('reg-run-btn');
+  const spinner = document.getElementById('reg-spinner');
+  const btnText = document.getElementById('reg-btn-text');
+
+  btn.disabled = true;
+  spinner.style.display = 'inline-block';
+  btnText.textContent = 'Fetching...';
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 60000);
+
+    const res = await fetch('/run-regulatory', { 
+      method: 'POST',
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+
+    const text = await res.text();        // ← get raw text first
+    console.log('Raw response:', text);   // ← check browser console
+    const data = JSON.parse(text);        // ← then parse
+
+    renderRegulatoryFeed(data.signals || []);
+    showToast(`✓ ${data.total} PFRDA releases found`, 'success');
+
+  } catch(err) {
+    console.error('Error:', err);
+    showToast('Regulatory fetch failed — check backend', 'error');
+  } finally {
+    btn.disabled = false;
+    spinner.style.display = 'none';
+    btnText.textContent = '⚡ Fetch Releases';
+  }
+}
+</script>
+</body>
+</html>

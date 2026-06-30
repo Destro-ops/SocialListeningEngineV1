@@ -1,0 +1,13 @@
+langgraph
+langchain
+langchain-anthropic
+langchain-community
+tavily-python
+fastapi
+uvicorn
+streamlit
+python-dotenv
+httpx
+feedparser
+
+aiofiles
