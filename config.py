@@ -52,6 +52,7 @@ COMMUNITY_TOPICS = [
     "NPS tax benefit corporate",
     "employer NPS contribution India",
     "nps vatsalya"
+    "latest news on NPS/EPF India",
 ]
 
 COMMUNITY_SOURCES = [

@@ -54,6 +54,11 @@ about corporate NPS, EPF, NPS vatsalya EPF, employee benefits, SIP's(systematic 
 Also get news on retirement plans, pension schemes, and other related topics. If it is relevant, explain exactly what it means for PensionBox.
 NOTE: If the post is spam, unrelated, or about a different country's pension system, mark it as not relevant.
 also do not get news about income tax (IT).
+
+
+"NOTE: Posts from r/IndiaInvestments, r/personalfinanceindia, r/IndiaFinance are 
+high-signal — be more lenient with relevance. Posts from broader subreddits like 
+r/india need a direct NPS/EPF/PensionBox mention to be considered relevant."
 Post:
 Topic searched: {competitor}
 Title: {title}

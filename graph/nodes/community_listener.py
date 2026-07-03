@@ -12,7 +12,7 @@ async def search_topic(topic: str, source: str) -> list:
     try:
         response = await client.search(
             query=query,
-            max_results=5,
+            max_results=6,
             search_depth="basic",   # cheaper than researcher.py's "advanced" — community noise doesn't need deep crawl
             include_raw_content=False,
             time_range="month"      # community chatter goes stale fast vs. competitor news
