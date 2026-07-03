@@ -39,4 +39,33 @@ PensionBox.in is an Indian B2B fintech platform helping SMEs and large enterpris
 Target customers: Indian SMEs with 20-500 employees and large enterprises with 500+ employees
 Key value prop: Simplifying pension and benefits compliance for HR teams and corporates
 """
+COMMUNITY_TOPICS = [
+    "corporate NPS India employees",
+    "NPS vs PPF vs EPF which is better",
+    "Is NPS good for employees India",
+    "nps is the worst product ?",
+    "NPS scam India",
+    "is nps a safe investment for employees India",
+    "what are the alternatives for sukanya samriddhi yojana and nps",
+    "is nps even worth it for employees India",
+    "best NPS scheme for employees India",
+    "NPS tax benefit corporate",
+    "employer NPS contribution India",
+    "nps vatsalya"
+]
 
+COMMUNITY_SOURCES = [
+    "site:reddit.com",
+    "site:quora.com",
+    "(site:twitter.com OR site:x.com)",
+]
+
+# Reddit subreddits to monitor (PRAW)
+SUBREDDITS = [
+    "IndiaInvestments",
+    "personalfinanceindia",
+    "IndiaFinance",
+    "NPS",
+    "EPFO",
+    "india",          # catch broader viral posts about EPFO/NPS
+]

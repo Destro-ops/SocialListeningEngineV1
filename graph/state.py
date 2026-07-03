@@ -11,6 +11,9 @@ class Signal(TypedDict):
     importance: str         # high, medium, low
     implication: str        # what this means for PensionBox
     published_at: str
+    source_type: str          # news, blog, social_media, regulatory, etc
+    sentiment: Optional[str]    # positive, negative, neutral
+    mentions_pensionbox: Optional[bool]  # whether the signal mentions PensionBox
 
 class AgentState(TypedDict):
     # Input
@@ -18,7 +21,7 @@ class AgentState(TypedDict):
     search_plan: dict                   # {"HDFC Pension": ["news", "blogs"], ...}
     # Research phase
     raw_results: List[dict] 
-       
+    
     regulatory_signals: List[dict] 
     # Analysis phase
     signals: List[Signal]           # filtered, classified signals
@@ -27,3 +30,6 @@ class AgentState(TypedDict):
     brief: Optional[str]            # final markdown brief with citations
     run_at: Optional[str]           # timestamp
     error: Optional[str]            # if something goes wrong
+    mode: str
+    community_results: List[dict]
+    

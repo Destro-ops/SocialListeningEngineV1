@@ -6,6 +6,7 @@ from datetime import datetime, timezone
 from graph.graph import intelligence_graph
 from graph.nodes.regulatory import regulatory_node
 from config import COMPETITORS
+from graph.graph import intelligence_graph, community_graph
 
 # ── In-memory state ──
 latest_signals: list = []
@@ -13,6 +14,9 @@ latest_brief: str = None
 last_run_at: str = None
 latest_regulatory: list = []
 last_regulatory_run: str = None
+latest_community_signals: list = []
+latest_community_brief: str = None
+last_community_run_at: str = None
 
 
 @asynccontextmanager
@@ -26,6 +30,54 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan
 )
+
+@app.post("/run-community")
+async def trigger_community_run():
+    global latest_community_signals, latest_community_brief, last_community_run_at
+
+    initial_state = {
+        "mode": "community",
+        "competitors": [],
+        "search_plan": {},
+        "raw_results": [],
+        "community_results": [],
+        "signals": [],
+        "regulatory_signals": [],
+        "brief": None,
+        "run_at": None,
+        "error": None
+    }
+
+    result = await community_graph.ainvoke(initial_state)
+    latest_community_signals = result.get("signals", [])
+    latest_community_brief = result.get("brief", "")
+    last_community_run_at = datetime.now(timezone.utc).isoformat()
+
+    return {
+        "message": "Community pipeline complete",
+        "total_signals": len(latest_community_signals),
+        "last_run_at": last_community_run_at,
+        "signals": latest_community_signals
+    }
+
+@app.get("/community-signals")
+async def get_community_signals():
+    return {
+        "last_run_at": last_community_run_at,
+        "total": len(latest_community_signals),
+        "signals": latest_community_signals
+    }
+
+
+@app.get("/community-brief")
+async def get_community_brief():
+    return {
+        "last_run_at": last_community_run_at,
+        "total_signals": len(latest_community_signals),
+        "brief": latest_community_brief
+    }
+
+
 
 
 @app.get("/")
@@ -45,7 +97,9 @@ async def trigger_run():
         "regulatory_signals": [],
         "brief": None,
         "run_at": None,
-        "error": None
+        "error": None,
+        "mode" : "competitor",
+        "community_results": []
     }
 
     result = await intelligence_graph.ainvoke(initial_state)

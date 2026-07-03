@@ -387,6 +387,12 @@
   .pill-regulatory_response{ background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
   .pill-marketing_push     { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
   .pill-market_news        { background: rgba(148,163,184,0.08); color: var(--text-muted); border: 1px solid rgba(148,163,184,0.15); }
+  .pill-pain_point         { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .pill-comparison_question{ background: rgba(96,165,250,0.1); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+  .pill-positive_mention   { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+  .pill-negative_mention   { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .pill-general_question   { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
+  .pill-competitor_mention { background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
 
   .bulletin-summary {
     font-size: 0.82rem;
@@ -577,7 +583,7 @@
 
     <div class="nav-section">Intelligence</div>
     <a class="nav-item active" onclick="showPage('live')" href="#">
-      <span class="nav-icon">⚡</span> Live Feed
+      <span class="nav-icon">⚡</span> Competitor Listening
       <span class="nav-badge" id="live-badge">0</span>
     </a>
     <a class="nav-item" onclick="showPage('history')" href="#">
@@ -591,10 +597,9 @@
     <div class="sidebar-divider"></div>
 
     <div class="nav-section">Community</div>
-    <a class="nav-item" onclick="showPage('social')" href="#">
-      <span class="nav-icon">🌐</span> Social Listening
-      <span style="margin-left:auto;font-size:0.6rem;color:var(--yellow);font-family:'JetBrains Mono',monospace;">SOON</span>
-    </a>
+    <div class="nav-item" onclick="showPage('social', this)">
+  <span class="nav-icon">🌐</span> Community Listening
+    </div>
 
     <div class="sidebar-divider"></div>
 
@@ -684,26 +689,40 @@
 </div>
 
     <!-- SOCIAL MEDIA PAGE -->
-    <div class="page" id="page-social">
-      <div class="topbar">
-        <div>
-          <div class="page-title">Social Listening</div>
-          <div class="page-sub">Community intelligence · Reddit · Quora · Twitter</div>
-        </div>
-      </div>
-      <div class="coming-soon">
-        <div class="coming-badge">Coming Soon</div>
-        <div class="coming-title">Community Intelligence</div>
-        <div class="coming-sub">Monitor conversations about NPS, EPF, and employee benefits across social platforms in real time.</div>
-        <div class="coming-sources">
-          <span class="coming-source">Reddit API</span>
-          <span class="coming-source">Quora via Tavily</span>
-          <span class="coming-source">Twitter via Tavily</span>
-          <span class="coming-source">r/IndiaInvestments</span>
-          <span class="coming-source">r/personalfinanceindia</span>
-        </div>
-      </div>
+    <!-- SOCIAL MEDIA PAGE -->
+<div class="page" id="page-social">
+  <div class="topbar">
+    <div>
+      <div class="page-title">Social Listening</div>
+      <div class="page-sub">Community intelligence · Reddit · Quora · Twitter</div>
     </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="engine-badge"><span class="engine-dot"></span>COMMUNITY INTEL</div>
+      <button class="run-btn" id="community-run-btn" onclick="runCommunity()" style="width:auto;padding:0.5rem 1.2rem;margin-top:0;font-size:0.78rem;">
+        <span class="spinner" id="community-spinner"></span>
+        <span id="community-btn-text">⚡ Run Community Feed</span>
+      </button>
+    </div>
+  </div>
+  <div class="tabs-row" id="community-tabs">
+    <button class="tab-btn active" onclick="filterCommunityTab('all', this)">All</button>
+    
+    <button class="tab-btn" onclick="filterCommunityTab('pain_point', this)">Pain Points</button>
+    <button class="tab-btn" onclick="filterCommunityTab('comparison_question', this)">Comparisons</button>
+    <button class="tab-btn" onclick="filterCommunityTab('positive_mention', this)">Positive</button>
+    <button class="tab-btn" onclick="filterCommunityTab('negative_mention', this)">Negative</button>
+    <button class="tab-btn" onclick="filterCommunityTab('competitor_mention', this)">Competitor Mentions</button>
+    <button class="tab-btn" onclick="filterCommunityTab('reddit', this)">Reddit</button>
+    <button class="tab-btn" onclick="filterCommunityTab('quora', this)">Quora</button>
+    <button class="tab-btn" onclick="filterCommunityTab('twitter', this)">Twitter</button>
+  </div>
+  <div id="community-feed">
+    <div class="empty">
+      <div class="empty-icon">🌐</div>
+      <div class="empty-text">No community data · Hit run to start</div>
+    </div>
+  </div>
+</div>
 
   </main>
 </div>
@@ -713,12 +732,13 @@
   let runs = JSON.parse(localStorage.getItem('pb_runs') || '[]');
   let currentTab = 'all';
 
-  function showPage(name) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + name).classList.add('active');
-    event.currentTarget.classList.add('active');
-    if (name === 'history') renderHistory();
+  function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  const target = el || event.currentTarget;
+  if (target) target.classList.add('active');
+  if (name === 'history') renderHistory();
   }
 
   function filterTab(type, btn) {
@@ -1047,6 +1067,122 @@ async function runRegulatory() {
     btnText.textContent = '⚡ Fetch Releases';
   }
 }
+
+// ── Community Intelligence ──
+  let allCommunitySignals = [];
+  let communityTab = 'all';
+
+  function communityPillClass(type) {
+    const map = {
+      pain_point: 'pill-pain_point',
+      comparison_question: 'pill-comparison_question',
+      positive_mention: 'pill-positive_mention',
+      negative_mention: 'pill-negative_mention',
+      general_question: 'pill-general_question',
+      competitor_mention: 'pill-competitor_mention',
+    };
+    return map[type] || 'pill-market_news';
+  }
+
+  function communityBulletinHTML(signal) {
+    const imp = signal.importance || 'low';
+    const type = signal.signal_type || 'general_question';
+    const sentiment = signal.sentiment || '';
+    const sentimentColor = sentiment === 'positive' ? 'var(--green)' : sentiment === 'negative' ? 'var(--red)' : 'var(--text-muted)';
+    const mentionsBadge = signal.mentions_pensionbox
+      ? `<span style="color:var(--accent);font-weight:700;font-size:0.62rem;font-family:'JetBrains Mono',monospace;">● PensionBox</span>`
+      : '';
+    const summary = (signal.summary || '').slice(0, 200) + ((signal.summary || '').length > 200 ? '...' : '');
+    return `
+    <div class="bulletin">
+      <div class="bulletin-header">
+        <div class="imp-indicator ${imp}"></div>
+        <div class="bulletin-title"><a href="${signal.url || '#'}" target="_blank">${signal.title || 'Untitled'}</a></div>
+      </div>
+      <div class="bulletin-meta">
+        <span style="color:${sentimentColor};font-weight:600">${sentiment.toUpperCase() || 'NEUTRAL'}</span>
+        <span class="meta-sep">·</span>
+        <span class="signal-pill ${communityPillClass(type)}">${type.replace(/_/g,' ').toUpperCase()}</span>
+        ${mentionsBadge ? `<span class="meta-sep">·</span>${mentionsBadge}` : ''}
+      </div>
+      <div class="bulletin-summary">${summary}</div>
+      ${signal.implication ? `
+      <div class="bulletin-implication">
+        <div class="imp-label">Action for PensionBox</div>
+        <div class="imp-text">${signal.implication}</div>
+      </div>` : ''}
+    </div>`;
+  }
+
+  function getCommunityFiltered(signals) {
+    if (communityTab === 'all') return signals;
+    if (communityTab === 'high') return signals.filter(s => s.importance === 'high');
+    if (communityTab === 'reddit') return signals.filter(s => (s.url || '').includes('reddit.com'));
+    if (communityTab === 'quora') return signals.filter(s => (s.url || '').includes('quora.com'));
+    if (communityTab === 'twitter') return signals.filter(s => (s.url || '').includes('twitter.com') || (s.url || '').includes('x.com'));
+    return signals.filter(s => s.signal_type === communityTab);
+  }
+
+  function filterCommunityTab(type, btn) {
+    communityTab = type;
+    document.querySelectorAll('#community-tabs .tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderCommunityFeed(allCommunitySignals);
+  }
+
+  function renderCommunityFeed(signals) {
+    allCommunitySignals = signals;
+    const feed = document.getElementById('community-feed');
+    const filtered = getCommunityFiltered(signals);
+    if (!signals.length) {
+      feed.innerHTML = `<div class="empty"><div class="empty-icon">🌐</div><div class="empty-text">No community data · Hit run to start</div></div>`;
+      return;
+    }
+    if (!filtered.length) {
+      feed.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div><div class="empty-text">No signals in this category</div></div>`;
+      return;
+    }
+    feed.innerHTML = `<div class="feed">${filtered.map(communityBulletinHTML).join('')}</div>`;
+  }
+
+  async function runCommunity() {
+    const btn = document.getElementById('community-run-btn');
+    const spinner = document.getElementById('community-spinner');
+    const btnText = document.getElementById('community-btn-text');
+
+    btn.disabled = true;
+    spinner.style.display = 'inline-block';
+    btnText.textContent = 'Running agents...';
+
+    try {
+      const res = await fetch('/run-community', { method: 'POST' });
+      const data = await res.json();
+      const signals = data.signals || [];
+      renderCommunityFeed(signals);
+      showToast(`✓ ${signals.length} community signals found`, 'success');
+      btnText.textContent = `✓ ${signals.length} signals found`;
+      setTimeout(() => { btnText.textContent = '⚡ Run Community Feed'; }, 3000);
+    } catch(err) {
+      showToast('Community fetch failed — check backend', 'error');
+      btnText.textContent = '⚠ Error — check backend';
+      setTimeout(() => { btnText.textContent = '⚡ Run Community Feed'; }, 3000);
+    } finally {
+      btn.disabled = false;
+      spinner.style.display = 'none';
+    }
+  }
+
+  // Load community signals on page load if available
+  (async () => {
+    try {
+      const res = await fetch('/community-signals');
+      const data = await res.json();
+      if (data.signals && data.signals.length) {
+        renderCommunityFeed(data.signals);
+      }
+    } catch(e) {}
+  })();
+
 </script>
 </body>
 </html>

@@ -5,6 +5,7 @@ from graph.nodes.researcher import researcher_node
 from graph.nodes.analyst import analyst_node
 from graph.nodes.dedup import dedup_node
 from graph.nodes.briefing import briefing_node
+from graph.nodes.community_listener import community_listener_node
 
 
 def should_continue_after_research(state: AgentState) -> str:
@@ -77,5 +78,38 @@ def build_graph() -> StateGraph:
     return graph.compile()
 
 
-# Compile once at module level — reused across runs
+
+
+def should_continue_after_community(state: AgentState) -> str:
+    if not state.get("community_results"):
+        return "briefing"
+    return "analyst"
+
+def build_community_graph() -> StateGraph:
+    """Build and compile the community listening graph. No supervisor needed — topics are fixed in config.py."""
+    graph = StateGraph(AgentState)
+
+    graph.add_node("community_listener", community_listener_node)
+    graph.add_node("analyst", analyst_node)
+    graph.add_node("dedup", dedup_node)
+    graph.add_node("briefing", briefing_node)
+
+    graph.set_entry_point("community_listener")
+
+    graph.add_conditional_edges(
+        "community_listener",
+        should_continue_after_community,
+        {"analyst": "analyst", "briefing": "briefing"}
+    )
+    graph.add_conditional_edges(
+        "analyst",
+        should_continue_after_analyst,
+        {"dedup": "dedup", "briefing": "briefing"}
+    )
+    graph.add_edge("dedup", "briefing")
+    graph.add_edge("briefing", END)
+
+    return graph.compile()
+
 intelligence_graph = build_graph()
+community_graph = build_community_graph()
