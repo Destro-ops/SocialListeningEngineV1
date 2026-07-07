@@ -70,3 +70,23 @@ SUBREDDITS = [
     "EPFO",
     "india",          # catch broader viral posts about EPFO/NPS
 ]
+
+ETHRWORLD_TOPICS = [
+    "CHRO appointed India",
+    "Chief Human Resources Officer new India",
+    "HR head appointed India company",
+    "VP HR joined India",
+    "Head of HR hired India",
+    "CHRO resignation India",
+]
+
+ETHRWORLD_TOPICS = [
+    "CHRO appointed India",
+    "Chief Human Resources Officer new India",
+    "HR head appointed India company",
+    "VP HR joined India",
+    "Head of HR hired India",
+    "CHRO resignation India",
+]
+
+ETHRWORLD_SOURCE = "site:hr.economictimes.indiatimes.com"

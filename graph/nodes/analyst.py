@@ -86,11 +86,45 @@ return is_relevant: false and leave other fields empty.
 Respond ONLY with JSON. No markdown, no preamble.
 """.strip()
 
+HR_INTEL_PROMPT = """
+You are an HR intelligence analyst for PensionBox.in.
+
+{pensionbox_context}
+
+Analyze this ETHRWorld article and determine if it signals a relevant HR leadership 
+change at any Indian company — specifically new CHRO, VP HR, or Head of HR appointments 
+or resignations.
+
+Article:
+Title: {title}
+Content: {content}
+URL: {url}
+
+Respond ONLY with a JSON object:
+{{
+    "is_relevant": true or false,
+    "signal_type": "hiring_signal",
+    "importance": "high", "medium", or "low",
+    "summary": "Who joined/left, which company, what role",
+    "implication": "Is this company now a potential PensionBox prospect? New CHRO means new benefits decisions.",
+    "citation": the exact URL
+}}
+
+Only mark relevant if it's a concrete appointment or resignation of a senior HR leader 
+at an Indian company. Ignore general HR trend articles.
+Respond ONLY with JSON. No markdown, no preamble.
+""".strip()
+
 
 async def analyse_result(result: dict) -> dict | None:
     async with semaphore:
         is_community = result.get("source_type") == "community"
-        prompt_template = COMMUNITY_ANALYST_PROMPT if is_community else COMPETITOR_ANALYST_PROMPT
+        is_hr_intel = result.get("source_type") == "hr_intelligence"
+        prompt_template = (
+        HR_INTEL_PROMPT if is_hr_intel
+        else COMMUNITY_ANALYST_PROMPT if is_community
+        else COMPETITOR_ANALYST_PROMPT
+      )
 
         prompt = prompt_template.format(
             pensionbox_context=PENSIONBOX_CONTEXT,

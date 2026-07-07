@@ -34,9 +34,9 @@ async def dedup_node(state: AgentState) -> dict:
 
     if len(signals) <= 1:
         return {"signals": signals}
-    if len(signals) > 60:
-        signals = signals[:60]
-        print(f"[dedup] Capped at 60 signals to avoid rate limit")
+    if len(signals) > 65:
+        signals = signals[:65]
+        print(f"[dedup] Capped at 65 signals to avoid rate limit")
 
     print(f"[dedup] Clustering {len(signals)} signals...")
 

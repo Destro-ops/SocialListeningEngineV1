@@ -393,6 +393,7 @@
   .pill-negative_mention   { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
   .pill-general_question   { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.2); }
   .pill-competitor_mention { background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+  .pill-hr_intelligence    { background: rgba(251,146,60,0.1); color: var(--amber); border: 1px solid rgba(251,146,60,0.2); }
 
   .bulletin-summary {
     font-size: 0.82rem;
@@ -715,6 +716,7 @@
     <button class="tab-btn" onclick="filterCommunityTab('reddit', this)">Reddit</button>
     <button class="tab-btn" onclick="filterCommunityTab('quora', this)">Quora</button>
     <button class="tab-btn" onclick="filterCommunityTab('twitter', this)">Twitter</button>
+    <button class="tab-btn" onclick="filterCommunityTab('hiring_signal', this)">HR News</button>
   </div>
   <div id="community-feed">
     <div class="empty">
@@ -763,13 +765,15 @@
       regulatory_response: 'pill-regulatory_response',
       marketing_push: 'pill-marketing_push',
       market_news: 'pill-market_news',
+      hr_intelligence: 'pill-hr_intelligence',
     };
     return map[type] || 'pill-market_news';
   }
 
   function pillLabel(type) {
-    return (type || 'market news').replace(/_/g, ' ').toUpperCase();
-  }
+  if (type === 'hr_intelligence') return 'HR INTEL';
+  return (type || 'market news').replace(/_/g, ' ').toUpperCase();
+}
 
   function bulletinHTML(signal) {
     const imp = signal.importance || 'low';

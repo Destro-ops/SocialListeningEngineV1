@@ -2,7 +2,7 @@ import asyncio
 from datetime import timedelta, timezone, datetime
 from tavily import AsyncTavilyClient
 from graph.state import AgentState
-from config import TAVILY_API_KEY, COMMUNITY_TOPICS, COMMUNITY_SOURCES
+from config import TAVILY_API_KEY, COMMUNITY_TOPICS, COMMUNITY_SOURCES, ETHRWORLD_TOPICS, ETHRWORLD_SOURCE
 
 client = AsyncTavilyClient(api_key=TAVILY_API_KEY)
 
@@ -34,18 +34,23 @@ async def search_topic(topic: str, source: str) -> list:
 
 async def community_listener_node(state: AgentState) -> dict:
     """
-    Searches Reddit/Quora/Twitter via Tavily for organic conversation
-    about corporate NPS / EPF / PensionBox. Runs in place of researcher_node
-    when state["mode"] == "community".
+    Searches Reddit/Quora/Twitter via Tavily + ETHRWorld for HR leadership changes.
+    Runs when state["mode"] == "community".
     """
-    print(f"[community_listener] Searching {len(COMMUNITY_TOPICS)} topics × {len(COMMUNITY_SOURCES)} sources...")
+    print(f"[community_listener] Searching {len(COMMUNITY_TOPICS)} topics × {len(COMMUNITY_SOURCES)} sources + {len(ETHRWORLD_TOPICS)} ETHRWorld topics...")
 
-    tasks = [
+    community_tasks = [
         search_topic(topic, source)
         for topic in COMMUNITY_TOPICS
         for source in COMMUNITY_SOURCES
     ]
-    results = await asyncio.gather(*tasks)
+
+    ethrworld_tasks = [
+        search_ethrworld(topic)
+        for topic in ETHRWORLD_TOPICS
+    ]
+
+    results = await asyncio.gather(*community_tasks, *ethrworld_tasks)
     all_results = [r for batch in results for r in batch]
 
     # Deduplicate by URL
@@ -58,3 +63,24 @@ async def community_listener_node(state: AgentState) -> dict:
 
     print(f"[community_listener] {len(all_results)} results → {len(unique)} after dedup")
     return {"community_results": unique}
+
+async def search_ethrworld(topic: str) -> list:
+    query = f"{ETHRWORLD_SOURCE} {topic}"
+    try:
+        response = await client.search(
+            query=query,
+            max_results=5,
+            search_depth="basic",
+            include_raw_content=False,
+            time_range="week"   # leadership changes are time-sensitive
+        )
+        results = response.get("results", [])
+        for r in results:
+            r["source_type"] = "hr_intelligence"
+            r["topic"] = topic
+            r["search_query"] = query
+        print(f"[community_listener] '{query}' → {len(results)} results")
+        return results
+    except Exception as e:
+        print(f"[community_listener] FAILED ethrworld query '{query}': {e}")
+        return []
